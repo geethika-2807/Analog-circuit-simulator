@@ -1,0 +1,97 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #f0f4f8;
+    font-family: Arial, sans-serif;
+}
+
+#card {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 440px;
+    margin: 60px auto;
+}
+
+h1 {
+    font-size: 20px;
+    color: #1a1a2e;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 4px;
+    margin-top: 12px;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+input {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 4px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+#calc-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 16px;
+}
+
+#reset-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: white;
+    color: #2563eb;
+    border: 1px solid #2563eb;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+#warning {
+    color: red;
+    font-weight: bold;
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+#results {
+    display: none;
+    background-color: #f8faff;
+    border: 1px solid #dde5f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-top: 14px;
+}
+
+#results p {
+    font-size: 15px;
+    color: #1a1a2e;
+    margin-bottom: 6px;
+}
