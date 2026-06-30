@@ -8,54 +8,153 @@
 </head>
 <body>
 
-    <div id="card">
-
+    <div id="top-bar">
         <h1>Analog Circuit Simulator</h1>
+    </div>
 
-        <label>Select circuit</label>
-        <select id="circuit-select">
-            <option value="inverting">Inverting amplifier</option>
-            <option value="noninverting">Non-inverting amplifier</option>
-            <option value="voltageFollower">Voltage follower</option>
-        </select>
+    <div id="layout">
 
- <div id="inputs-inverting" class="input-section">
-    <label>Rin (kΩ)</label>
-    <input type="number" id="rin" placeholder="Enter Rin">
-    <label>Rf (kΩ)</label>
-    <input type="number" id="rf" placeholder="Enter Rf">
-    <label>Vin (V)</label>
-    <input type="number" id="vin" placeholder="Enter Vin">
-    <label>Supply voltage (V)</label>
-    <input type="number" id="vs" placeholder="Enter Vs">
-</div>
+        <div id="left-panel">
 
-<div id="inputs-noninverting" class="input-section" style="display:none;">
-    <label>Rin (kΩ)</label>
-    <input type="number" id="rin-ni" placeholder="Enter Rin">
-    <label>Rf (kΩ)</label>
-    <input type="number" id="rf-ni" placeholder="Enter Rf">
-    <label>Vin (V)</label>
-    <input type="number" id="vin-ni" placeholder="Enter Vin">
-    <label>Supply voltage (V)</label>
-    <input type="number" id="vs-ni" placeholder="Enter Vs">
-</div>
+            <div class="panel-section">
+                <div class="panel-title" onclick="toggleSection('circuit-select', this)">
+                    <span>Circuit</span>
+                    <span class="arrow">▶</span>
+                </div>
+                <div class="radio-group" id="circuit-select" style="display:none;">
+                    <label class="radio-opt active"><input type="radio" name="circuit" value="inverting" checked> Inverting amp</label>
+                    <label class="radio-opt"><input type="radio" name="circuit" value="noninverting"> Non-inverting</label>
+                    <label class="radio-opt"><input type="radio" name="circuit" value="voltageFollower"> Voltage follower</label>
+                    <label class="radio-opt"><input type="radio" name="circuit" value="summingAmp"> Summing amp</label>
+                </div>
+            </div>
 
-<div id="inputs-voltageFollower" class="input-section" style="display:none;">
-    <label>Vin (V)</label>
-    <input type="number" id="vin-vf" placeholder="Enter Vin">
-    <label>Supply voltage (V)</label>
-    <input type="number" id="vs-vf" placeholder="Enter Vs">
-</div>
+            <div class="panel-section">
+                <div class="panel-title" onclick="toggleSection('waveform-select', this)">
+                    <span>Waveform</span>
+                    <span class="arrow">▶</span>
+                </div>
+                <div class="radio-group" id="waveform-select" style="display:none;">
+                    <label class="radio-opt active"><input type="radio" name="waveform" value="sine" checked> Sine</label>
+                    <label class="radio-opt"><input type="radio" name="waveform" value="square"> Square</label>
+                    <label class="radio-opt"><input type="radio" name="waveform" value="triangle"> Triangle</label>
+                </div>
+            </div>
 
-        <button id="calc-btn">Calculate</button>
-        <button id="reset-btn">Clear</button>
+            <div class="panel-section">
+               <div class="panel-title" onclick="toggleSection('opamp-select', this)">
+                    <span>Op-amp model</span>
+                    <span class="arrow">▶</span>
+                </div>
+                <div class="radio-group" id="opamp-select" style="display:none;">
+                    <label class="radio-opt active"><input type="radio" name="opamp" value="ideal" checked> Ideal</label>
+                    <label class="radio-opt"><input type="radio" name="opamp" value="lm741"> LM741</label>
+                    <label class="radio-opt"><input type="radio" name="opamp" value="tl071"> TL071</label>
+                    <label class="radio-opt"><input type="radio" name="opamp" value="opa2134"> OPA2134</label>
+                </div>
+            </div>
 
-        <p id="warning"></p>
+        </div>
 
-        <div id="results">
-            <p id="vout"></p>
-            <p id="gain"></p>
+        <div id="divider"></div>
+
+        <div id="right-panel">
+
+            <div id="workspace">
+
+                <div id="input-area">
+                    <div id="inputs-inverting" class="input-section">
+                        <div class="input-grid">
+                            <div class="input-group">
+                                <label>Rin (kΩ)</label>
+                                <input type="number" id="rin" placeholder="Enter Rin">
+                            </div>
+                            <div class="input-group">
+                                <label>Rf (kΩ)</label>
+                                <input type="number" id="rf" placeholder="Enter Rf">
+                            </div>
+                            <div class="input-group">
+                                <label>Vin (V)</label>
+                                <input type="number" id="vin" placeholder="Enter Vin">
+                            </div>
+                            <div class="input-group">
+                                <label>Supply voltage (V)</label>
+                                <input type="number" id="vs" placeholder="Enter Vs">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="inputs-noninverting" class="input-section" style="display:none;">
+                        <div class="input-grid">
+                            <div class="input-group">
+                                <label>Rin (kΩ)</label>
+                                <input type="number" id="rin-ni" placeholder="Enter Rin">
+                            </div>
+                            <div class="input-group">
+                                <label>Rf (kΩ)</label>
+                                <input type="number" id="rf-ni" placeholder="Enter Rf">
+                            </div>
+                            <div class="input-group">
+                                <label>Vin (V)</label>
+                                <input type="number" id="vin-ni" placeholder="Enter Vin">
+                            </div>
+                            <div class="input-group">
+                                <label>Supply voltage (V)</label>
+                                <input type="number" id="vs-ni" placeholder="Enter Vs">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="inputs-voltageFollower" class="input-section" style="display:none;">
+                        <div class="input-grid">
+                            <div class="input-group">
+                                <label>Vin (V)</label>
+                                <input type="number" id="vin-vf" placeholder="Enter Vin">
+                            </div>
+                            <div class="input-group">
+                                <label>Supply voltage (V)</label>
+                                <input type="number" id="vs-vf" placeholder="Enter Vs">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="inputs-summingAmp" class="input-section" style="display:none;">
+                        <div class="input-group">
+                            <label>Number of inputs</label>
+                            <select id="sum-input-count">
+                                <option value="2">2 inputs</option>
+                                <option value="3">3 inputs</option>
+                                <option value="4">4 inputs</option>
+                            </select>
+                        </div>
+                        <div id="summing-inputs" class="input-grid"></div>
+                        <div class="input-grid">
+                            <div class="input-group">
+                                <label>Rf (kΩ)</label>
+                                <input type="number" id="rf-sum" placeholder="Enter Rf">
+                            </div>
+                            <div class="input-group">
+                                <label>Supply voltage (V)</label>
+                                <input type="number" id="vs-sum" placeholder="Enter Vs">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="action-bar">
+                    <button id="calc-btn">Calculate</button>
+                    <button id="reset-btn">Clear</button>
+                </div>
+
+                <p id="warning"></p>
+
+                <div id="results">
+                    <p id="vout"></p>
+                    <p id="gain"></p>
+                </div>
+
+            </div>
+
         </div>
 
     </div>
@@ -63,6 +162,7 @@
     <script src="js/circuits/inverting.js"></script>
     <script src="js/circuits/noninverting.js"></script>
     <script src="js/circuits/voltageFollower.js"></script>
+    <script src="js/circuits/summingAmp.js"></script>
     <script src="js/app.js"></script>
 
 </body>
