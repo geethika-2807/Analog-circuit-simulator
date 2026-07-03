@@ -126,16 +126,26 @@ document.getElementById("calc-btn").addEventListener("click", function() {
         result = calculateSummingAmp(inputs, rf, vs);
         vin = inputs[0].v;
     } else if (circuit === "integrator") {
-    var rin = parseFloat(document.getElementById("rin-int").value);
-    var c = parseFloat(document.getElementById("c-int").value);
-    vin = parseFloat(document.getElementById("vin-int").value);
-    vs = parseFloat(document.getElementById("vs-int").value);
-    if (isNaN(rin) || isNaN(c) || isNaN(vin) || isNaN(vs)) {
-        document.getElementById("warning").textContent = "Please fill in all values.";
-        return;
-    }
-    result = calculateIntegrator(rin, c, vin, vs, freq);
-    rf = 0;
+        var rin = parseFloat(document.getElementById("rin-int").value);
+        var c = parseFloat(document.getElementById("c-int").value);
+        vin = parseFloat(document.getElementById("vin-int").value);
+        vs = parseFloat(document.getElementById("vs-int").value);
+        if (isNaN(rin) || isNaN(c) || isNaN(vin) || isNaN(vs)) {
+            document.getElementById("warning").textContent = "Please fill in all values.";
+            return;
+        }
+        result = calculateIntegrator(rin, c, vin, vs, freq);
+        rf = 0;
+    } else if (circuit === "differentiator") {
+        rf = parseFloat(document.getElementById("rf-diff").value);
+        var c = parseFloat(document.getElementById("c-diff").value);
+        vin = parseFloat(document.getElementById("vin-diff").value);
+        vs = parseFloat(document.getElementById("vs-diff").value);
+        if (isNaN(rf) || isNaN(c) || isNaN(vin) || isNaN(vs)) {
+            document.getElementById("warning").textContent = "Please fill in all values.";
+            return;
+        }
+        result = calculateDifferentiator(rf, c, vin, vs, freq);
     }
 
 
