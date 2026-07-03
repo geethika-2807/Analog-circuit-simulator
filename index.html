@@ -26,6 +26,7 @@
                     <label class="radio-opt"><input type="radio" name="circuit" value="noninverting"> Non-inverting</label>
                     <label class="radio-opt"><input type="radio" name="circuit" value="voltageFollower"> Voltage follower</label>
                     <label class="radio-opt"><input type="radio" name="circuit" value="summingAmp"> Summing amp</label>
+                    <label class="radio-opt"><input type="radio" name="circuit" value="integrator"> Integrator</label>
                 </div>
             </div>
 
@@ -46,12 +47,15 @@
                     <span>Op-amp model</span>
                     <span class="arrow">▶</span>
                 </div>
-                <div class="radio-group" id="opamp-select" style="display:none;">
-                    <label class="radio-opt active"><input type="radio" name="opamp" value="ideal" checked> Ideal</label>
-                    <label class="radio-opt"><input type="radio" name="opamp" value="lm741"> LM741</label>
-                    <label class="radio-opt"><input type="radio" name="opamp" value="tl071"> TL071</label>
-                    <label class="radio-opt"><input type="radio" name="opamp" value="opa2134"> OPA2134</label>
-                </div>
+                    <div class="radio-group" id="opamp-select" style="display:none;">
+                        <label class="radio-opt active"><input type="radio" name="opamp" value="ideal" checked> Ideal</label>
+                        <label class="radio-opt"><input type="radio" name="opamp" value="lm741"> LM741</label>
+                        <label class="radio-opt"><input type="radio" name="opamp" value="lm358"> LM358</label>
+                        <label class="radio-opt"><input type="radio" name="opamp" value="tl071"> TL071</label>
+                        <label class="radio-opt"><input type="radio" name="opamp" value="opa2134"> OPA2134</label>
+                        <label class="radio-opt"><input type="radio" name="opamp" value="opa277"> OPA277</label>
+                        <label class="radio-opt"><input type="radio" name="opamp" value="lmv321"> LMV321</label>
+                    </div>
             </div>
 
         </div>
@@ -139,7 +143,35 @@
                             </div>
                         </div>
                     </div>
+
+                    <div id="inputs-integrator" class="input-section" style="display:none;">
+                        <div class="input-grid">
+                            <div class="input-group">
+                                <label>Rin (kΩ)</label>
+                                <input type="number" id="rin-int" placeholder="Enter Rin">
+                            </div>
+                            <div class="input-group">
+                                <label>Capacitor C (μF)</label>
+                                <input type="number" id="c-int" placeholder="Enter C">
+                            </div>
+                            <div class="input-group">
+                                <label>Vin (V)</label>
+                                <input type="number" id="vin-int" placeholder="Enter Vin">
+                            </div>
+                            <div class="input-group">
+                                <label>Supply voltage (V)</label>
+                                <input type="number" id="vs-int" placeholder="Enter Vs">
+                            </div>
+                        </div>
+</div>
                 </div>
+
+            <div id="freq-input" style="display:none;">
+                <div class="input-group">
+                    <label>Input frequency (Hz)</label>
+                    <input type="number" id="freq" placeholder="Enter frequency (e.g. 1000)">
+                </div>
+            </div>
 
                 <div id="action-bar">
                     <button id="calc-btn">Calculate</button>
@@ -149,8 +181,18 @@
                 <p id="warning"></p>
 
                 <div id="results">
-                    <p id="vout"></p>
-                    <p id="gain"></p>
+                    <div id="ideal-results">
+                        <p id="vout"></p>
+                        <p id="gain"></p>
+                    </div>
+                    <div id="real-results" style="display:none;">
+                        <p id="real-vout"></p>
+                        <p id="vos-error"></p>
+                        <p id="ib-error"></p>
+                        <p id="gbw-error"></p>
+                        <p id="slew-status"></p>
+                        <p id="chip-desc"></p>
+                    </div>
                 </div>
 
             </div>
@@ -159,11 +201,13 @@
 
     </div>
 
-    <script src="js/circuits/inverting.js"></script>
-    <script src="js/circuits/noninverting.js"></script>
-    <script src="js/circuits/voltageFollower.js"></script>
-    <script src="js/circuits/summingAmp.js"></script>
-    <script src="js/app.js"></script>
+<script src="js/circuits/inverting.js"></script>
+<script src="js/circuits/noninverting.js"></script>
+<script src="js/circuits/voltageFollower.js"></script>
+<script src="js/circuits/summingAmp.js"></script>
+<script src="js/circuits/integrator.js"></script>
+<script src="js/nonidealities.js"></script>
+<script src="js/app.js"></script>
 
 </body>
 </html>
