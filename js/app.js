@@ -1,4 +1,8 @@
 var lastCalcState = null;
+function toggleHelp() {
+    var panel = document.getElementById("help-panel");
+    panel.classList.toggle("open");
+}
 
 // toggle section
 function toggleSection(id, titleEl) {
@@ -141,6 +145,7 @@ document.getElementById("calc-btn").addEventListener("click", function() {
             });
         }
         result = calculateSummingAmp(inputs, rf, vs);
+        result.gain = result.gains[0];
         vin = inputs[0].v;
 
     } else if (circuit === "integrator") {
@@ -283,6 +288,11 @@ function toggleMode() {
     var designMode = document.getElementById("design-mode");
     var results = document.getElementById("results");
     var realResults = document.getElementById("real-results");
+    
+    var leftPanel = document.getElementById("left-panel");
+    var divider = document.getElementById("divider");
+    var waveformPanel = document.getElementById("waveform-panel");
+    var innerDivider = document.getElementById("inner-divider");
 
     if (isDesignMode) {
         btn.textContent = "Switch to Analysis Mode";
@@ -291,59 +301,107 @@ function toggleMode() {
         designMode.style.display = "block";
         results.style.display = "none";
         realResults.style.display = "none";
+        
+        leftPanel.style.display = "none";
+        divider.style.display = "none";
+        waveformPanel.style.display = "none";
+        innerDivider.style.display = "none";
     } else {
         btn.textContent = "Switch to Design Mode";
         workspace.style.display = "block";
         actionBar.style.display = "flex";
         designMode.style.display = "none";
+        
+        leftPanel.style.display = "block";
+        divider.style.display = "block";
+        
+        // Restore waveform if there was a previous calculation state
+        if (lastCalcState) {
+            waveformPanel.style.display = "flex";
+            innerDivider.style.display = "block";
+        }
     }
 }
 
 document.getElementById("design-btn").addEventListener("click", function() {
-    var targetGain = parseFloat(document.getElementById("target-gain").value);
+    var circuit = document.getElementById("design-circuit").value;
+    var targetGain = parseFloat(document.getElementById("design-gain").value);
     var rin = parseFloat(document.getElementById("design-rin").value);
+    var bandwidth = parseFloat(document.getElementById("design-bw").value);
+    var amplitude = parseFloat(document.getElementById("design-amp").value);
+    var vs = parseFloat(document.getElementById("design-vs").value);
+    var errorLimit = parseFloat(document.getElementById("design-err").value) || 5;
 
-    if (isNaN(targetGain) || isNaN(rin)) {
+    if (isNaN(targetGain) || isNaN(rin) || isNaN(bandwidth) || isNaN(amplitude) || isNaN(vs)) {
         alert("Please fill in all values.");
         return;
     }
 
-    var result = designInverting(targetGain, rin);
+    var design = runDesign(circuit, targetGain, rin, bandwidth, amplitude, vs, errorLimit);
 
-    document.getElementById("exact-rf").textContent =
-        "Exact Rf needed: " + result.exactRf.toFixed(2) + " kΩ";
-    document.getElementById("standard-rf").textContent =
-        "Nearest E12 standard value: " + result.standardRf + " kΩ";
-    document.getElementById("actual-gain").textContent =
-        "Actual gain with standard Rf: " + result.actualGain.toFixed(4);
-    document.getElementById("gain-error").textContent =
-        "Error from target: " + result.errorPercent.toFixed(2) + "%";
+    // show components
+    document.getElementById("d-exact-rf").textContent = design.exactRf.toFixed(2) + " kΩ";
+    document.getElementById("d-standard-rf").textContent = design.standardRf + " kΩ";
+    document.getElementById("d-actual-gain").textContent = design.actualGain.toFixed(4);
+    document.getElementById("d-gain-error").textContent = design.gainError.toFixed(2) + "%";
+
+    document.getElementById("d-gain-error").style.color =
+        design.meetsGainError ? "#27500A" : "#cc3333";
+
+    // show chip verification
+    var list = document.getElementById("chip-verification-list");
+    list.innerHTML = "";
+
+    design.chipResults.forEach(function(cr) {
+        var icon = cr.result.status === "pass" ? "✓" :
+                   cr.result.status === "warning" ? "⚠" : "✗";
+
+        var issuesHtml = "";
+        cr.result.issues.forEach(function(issue) {
+            issuesHtml += "<div>✗ " + issue + "</div>";
+        });
+        cr.result.warnings.forEach(function(warn) {
+            issuesHtml += "<div>⚠ " + warn + "</div>";
+        });
+        if (issuesHtml === "") {
+            issuesHtml = "<div>All specifications met</div>";
+        }
+
+        var isBest = cr.key === design.bestChip;
+        list.innerHTML +=
+            '<div class="chip-row ' + cr.result.status + '">' +
+                '<div class="chip-status">' + icon + '</div>' +
+                '<div>' +
+                    '<div class="chip-name">' + cr.result.chip +
+                        (isBest ? ' <span style="color:#2563eb;font-size:11px;">★ RECOMMENDED</span>' : '') +
+                    '</div>' +
+                    '<div class="chip-issues">' + issuesHtml + '</div>' +
+                '</div>' +
+            '</div>';
+    });
+
+    // show recommendation
+    var recDiv = document.getElementById("design-recommendation");
+    if (design.bestChip) {
+        recDiv.innerHTML =
+            '<div class="best-chip-banner">' +
+                'Best chip for your specifications: ' +
+                '<strong>' + chipData[design.bestChip].name + '</strong>' +
+                '<br><span style="font-size:11px;opacity:0.8;">' +
+                chipData[design.bestChip].description + '</span>' +
+            '</div>';
+    } else {
+        recDiv.innerHTML =
+            '<div class="best-chip-banner" style="background:#cc3333;">' +
+                'No chip in our database meets all your specifications.<br>' +
+                '<span style="font-size:11px;">Consider reducing gain, bandwidth, or amplitude.</span>' +
+            '</div>';
+    }
 
     document.getElementById("design-results").style.display = "block";
 });
 
-// inner divider drag
-var innerDivider = document.getElementById("inner-divider");
-var waveformPanel = document.getElementById("waveform-panel");
-var workspaceArea = document.getElementById("workspace-area");
-var isInnerDragging = false;
 
-innerDivider.addEventListener("mousedown", function(e) {
-    isInnerDragging = true;
-    document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none";
-});
-
-document.addEventListener("mousemove", function(e) {
-    if (!isInnerDragging) return;
-    var rightPanel = document.getElementById("right-panel");
-    var rightPanelLeft = rightPanel.getBoundingClientRect().left;
-    var newWorkspaceWidth = e.clientX - rightPanelLeft;
-    if (newWorkspaceWidth < 300) newWorkspaceWidth = 300;
-    if (newWorkspaceWidth > 800) newWorkspaceWidth = 800;
-    workspaceArea.style.width = newWorkspaceWidth + "px";
-    workspaceArea.style.flex = "none";
-});
 
 // waveform generation
 function generateWave(type, amplitude, frequency, sampleCount, cycles) {
@@ -394,6 +452,11 @@ function drawWaveform(inputPoints, idealPoints, realPoints, maxVoltage, frequenc
     var allPoints = inputPoints.concat(idealPoints).concat(realPoints);
     var maxVal = Math.max.apply(null, allPoints.map(Math.abs));
     if (maxVal === 0) maxVal = 1;
+    // if input dominates output too much, scale y axis to output range
+    var outputMax = Math.max.apply(null, idealPoints.concat(realPoints).map(Math.abs));
+    if (outputMax > 0 && inputMax / outputMax > 10) {
+        maxVal = inputMax;
+}
 
     // y axis grid, ticks and labels
     ctx.font = "10px Arial";
@@ -501,7 +564,20 @@ function drawWaveform(inputPoints, idealPoints, realPoints, maxVoltage, frequenc
     ctx.fillStyle = "rgba(255,255,255,0.4)";
     ctx.fillText("Time (" + timeUnit + ")", padL + plotW / 2, H - 4);
 
+        // calculate individual scales for each line
+    var inputMax = Math.max.apply(null, inputPoints.map(Math.abs));
+    var idealMax = Math.max.apply(null, idealPoints.map(Math.abs));
+    var realMax = Math.max.apply(null, realPoints.map(Math.abs));
+
+    if (inputMax === 0) inputMax = 1;
+    if (idealMax === 0) idealMax = 1;
+    if (realMax === 0) realMax = 1;
+
+    // use the largest value for y axis labels
+    var maxVal = Math.max(inputMax, idealMax, realMax);
     var scale = (plotH / 2 - 5) / maxVal;
+
+
 
     function drawLine(points, color, dash, width) {
         ctx.beginPath();
@@ -535,10 +611,15 @@ function showWaveform(result, chip, gain, vin, rf, freq, vs) {
     // handle very small or zero gain
     if (gain === 0 || isNaN(gain)) gain = 1;
 
+// clamp gain for display purposes so waveform stays visible
+    var displayGain = gain;
+    if (Math.abs(displayGain) > 100) displayGain = displayGain > 0 ? 100 : -100;
+    if (Math.abs(displayGain) < 0.001) displayGain = displayGain > 0 ? 0.001 : -0.001;
+
     var inputPoints = generateWave(type, amplitude, frequency, sampleCount, cycles);
 
     var idealPoints = inputPoints.map(function(v) {
-        var val = gain * v;
+        var val = displayGain * v;
         if (val > vs) return vs;
         if (val < -vs) return -vs;
         return val;
@@ -548,13 +629,13 @@ function showWaveform(result, chip, gain, vin, rf, freq, vs) {
     var dt = (cycles / frequency) / sampleCount;
 
     var realPoints = inputPoints.map(function(v) {
-        var actualGain = gain;
+        var actualGain = displayGain;
         if (c.gbw !== Infinity && frequency > 0) {
-            var bw = c.gbw / Math.abs(gain);
+            var bw = c.gbw / Math.abs(displayGain);
             var attenuation = 1 / Math.sqrt(1 + Math.pow(frequency / bw, 2));
-            actualGain = gain * attenuation;
+            actualGain = displayGain * attenuation;
         }
-        return actualGain * v + c.vos * Math.abs(gain);
+        return actualGain * v + c.vos * Math.abs(displayGain);
     });
 
     realPoints = applySlew(realPoints, c.slew, dt);
